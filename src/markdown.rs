@@ -296,7 +296,12 @@ impl MarkdownContent {
             // Fallback: take first characters of content
             let content_text = self.extract_plain_text();
             if content_text.len() > max_length {
-                format!("{}...", &content_text[..max_length])
+                // Find the nearest valid UTF-8 boundary
+                let mut boundary = max_length;
+                while boundary > 0 && !content_text.is_char_boundary(boundary) {
+                    boundary -= 1;
+                }
+                format!("{}...", &content_text[..boundary])
             } else {
                 content_text
             }
