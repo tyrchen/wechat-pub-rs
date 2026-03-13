@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [0.7.0](https://github.com/compare/v0.6.0..v0.7.0) - 2026-03-13
+
+### Bug Fixes
+
+- update deps and adapt to comrak 0.51 API changes - ([00346ee](https://github.com/commit/00346ee9ef64c40b2f5cbdcc3fed2590f2711ab0)) - Tyr Chen
+
+### Other
+
+- Update CHANGELOG.md - ([90550c5](https://github.com/commit/90550c56ed6563b1c121afae8f4acedf58f85d6a)) - Tyr Chen
+
+---
 ## [0.6.0](https://github.com/compare/v0.5.3..v0.6.0) - 2025-08-31
 
 ### Features
