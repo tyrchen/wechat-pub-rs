@@ -1,6 +1,6 @@
 [package]
 name = "wechat-pub-rs"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["tyr.chen@gmail.com>"]
 edition = "2024"
 license = "MIT"
@@ -23,14 +23,9 @@ include = [
 
 [dependencies]
 # HTTP client with minimal features
-reqwest = { version = "0.12", default-features = false, features = [
-  "json",
-  "multipart",
-  "stream",
-  "rustls-tls",
-] }
+reqwest = { version = "0.13", features = ["json", "multipart", "stream"] }
 
-tokio = { version = "1.47", default-features = false, features = [
+tokio = { version = "1.50", default-features = false, features = [
   "fs",
   "time",
   "sync",
@@ -50,11 +45,11 @@ thiserror = "2.0"
 anyhow = "1.0"
 
 # Markdown processing
-comrak = "0.41"
-syntect = "5.2"
+comrak = "0.51"
+syntect = "5.3"
 
 # Template engine
-askama = "0.14"
+askama = "0.15"
 
 # Logging
 tracing = "0.1"
@@ -66,14 +61,14 @@ chrono = { version = "0.4", features = ["serde"] }
 mime_guess = "2.0"
 
 # Content hashing for image deduplication
-blake3 = "1.8.2"
+blake3 = "1.8.3"
 
 # CSS processing
-regex = "1.11"
-css-inline = "0.17.0"
+regex = "1.12"
+css-inline = "0.20"
 
 # HTML parsing for better code block processing
-scraper = "0.24"
+scraper = "0.25"
 
 # Random number generation for jitter
 fastrand = "2.3"
@@ -82,10 +77,10 @@ fastrand = "2.3"
 async-trait = "0.1"
 
 # UUID generation for temporary file names
-uuid = { version = "1.18", features = ["v4"] }
+uuid = { version = "1.22", features = ["v4"] }
 
 [dev-dependencies]
 tokio-test = "0.4"
 env_logger = "0.11"
-criterion = "0.7"
-tempfile = "3.21"
+criterion = "0.8"
+tempfile = "3.27"

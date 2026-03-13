@@ -61,7 +61,7 @@
 
 use crate::error::{Result, WeChatError};
 use crate::utils;
-use comrak::{Arena, ComrakOptions, nodes::NodeValue};
+use comrak::{Arena, Options as ComrakOptions, nodes::NodeValue};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -253,7 +253,7 @@ impl MarkdownContent {
 
         // Sort images by position in reverse order to avoid position shifting
         let mut sorted_images = self.images.clone();
-        sorted_images.sort_by(|a, b| b.position.0.cmp(&a.position.0));
+        sorted_images.sort_by_key(|img| std::cmp::Reverse(img.position.0));
 
         for image in &sorted_images {
             if let Some(new_url) = url_mapping.get(&image.original_url) {

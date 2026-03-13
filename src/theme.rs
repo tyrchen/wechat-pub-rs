@@ -58,7 +58,8 @@ use crate::css_vars::CssVariableProcessor;
 use crate::error::{Result, WeChatError};
 use askama::Template;
 use comrak::{
-    ComrakOptions, ComrakPlugins, markdown_to_html_with_plugins, plugins::syntect::SyntectAdapter,
+    Options as ComrakOptions, markdown_to_html_with_plugins, options::Plugins as ComrakPlugins,
+    plugins::syntect::SyntectAdapter,
 };
 use std::collections::HashMap;
 use tracing::warn;
@@ -958,8 +959,8 @@ And some inline `code` as well."#;
 
         // Get HTML before CSS inlining by using comrak directly
         use comrak::{
-            ComrakOptions, ComrakPlugins, markdown_to_html_with_plugins,
-            plugins::syntect::SyntectAdapter,
+            Options as ComrakOptions, markdown_to_html_with_plugins,
+            options::Plugins as ComrakPlugins, plugins::syntect::SyntectAdapter,
         };
 
         let mut options = ComrakOptions::default();
