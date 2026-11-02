@@ -205,12 +205,43 @@ impl ThemeTemplate {
         // Process CSS variables in both theme and highlight CSS
         let css_processor = CssVariableProcessor::new();
 
-        let processed_theme_css =
+        let mut processed_theme_css =
             css_processor
                 .process_css(&self.theme_css)
                 .map_err(|e| WeChatError::Internal {
                     message: format!("CSS variable processing failed for theme CSS: {e}"),
                 })?;
+
+        // WeChat's editor can impose justified text and loose paragraph spacing.
+        // Override these on code itself, after the article theme, before inlining.
+        processed_theme_css.push_str(
+            r#"
+            #wepub pre {
+                text-align: left;
+                text-indent: 0;
+                letter-spacing: normal;
+                word-spacing: normal;
+                white-space: pre-wrap;
+                word-break: normal;
+                overflow-wrap: anywhere;
+                overflow-x: auto;
+                font-size: 13px;
+                line-height: 1.6;
+            }
+            #wepub pre code, #wepub pre code span {
+                text-align: left;
+                text-indent: 0;
+                letter-spacing: normal;
+                word-spacing: normal;
+                white-space: pre-wrap;
+                word-break: normal;
+                overflow-wrap: anywhere;
+                font-size: inherit;
+                line-height: inherit;
+                tab-size: 4;
+            }
+            "#,
+        );
 
         let processed_highlight_css =
             css_processor
@@ -274,18 +305,14 @@ impl ThemeTemplate {
 
     /// Process code content to preserve syntax highlighting while fixing newlines for WeChat.
     fn process_code_content(&self, html_content: &str) -> String {
-        // Convert newlines to <br/> tags for WeChat compatibility
-        // Preserve existing HTML structure (like <span> tags for syntax highlighting)
-        let mut result = html_content.to_string();
-
-        // First, handle explicit newlines at the end of spans
-        result = result.replace(">\n", "><br/>");
-
-        // Handle newlines in plain text (not inside tags)
+        // Explicit breaks and non-breaking spaces survive WeChat's whitespace
+        // normalization. Only transform text, leaving highlighting tags intact.
         let mut processed = String::new();
         let mut in_tag = false;
+        let mut column = 0;
 
-        for ch in result.chars() {
+        let mut chars = html_content.chars().peekable();
+        while let Some(ch) = chars.next() {
             match ch {
                 '<' => {
                     in_tag = true;
@@ -296,17 +323,41 @@ impl ThemeTemplate {
                     processed.push(ch);
                 }
                 '\n' if !in_tag => {
-                    // Convert standalone newlines to <br/> tags
                     processed.push_str("<br/>");
+                    column = 0;
+                }
+                ' ' if !in_tag => {
+                    processed.push_str("&nbsp;");
+                    column += 1;
+                }
+                '\t' if !in_tag => {
+                    let spaces = 4 - column % 4;
+                    for _ in 0..spaces {
+                        processed.push_str("&nbsp;");
+                    }
+                    column += spaces;
+                }
+                '&' if !in_tag => {
+                    // An escaped character is one column, regardless of the
+                    // entity's serialized length (e.g. &lt; before a tab).
+                    processed.push(ch);
+                    for entity_ch in chars.by_ref() {
+                        processed.push(entity_ch);
+                        if entity_ch == ';' {
+                            break;
+                        }
+                    }
+                    column += 1;
+                }
+                _ if !in_tag => {
+                    processed.push(ch);
+                    column += 1;
                 }
                 _ => {
                     processed.push(ch);
                 }
             }
         }
-
-        // Clean up multiple consecutive <br/> tags
-        processed = processed.replace("<br/><br/>", "<br/>");
 
         processed
     }
